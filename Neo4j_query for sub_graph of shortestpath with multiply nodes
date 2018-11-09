@@ -1,0 +1,14 @@
+Post: http://cnyzthdedf28.apac.experian.local:7474/db/data/transaction/commit
+
+header: 
+Content-Type: application/json
+Accept: application/json; charset=UTF-8
+
+body:
+{
+  "statements" : [ {
+    "statement" : "with {sbdnums} as id_list match (v) where v.id in id_list with collect(v) as nodes unwind nodes as source  unwind nodes as target with source,target where id(source)<id(target)  match paths = allshortestPaths((source) -[*0..4]-(target)) return collect(paths)",
+    "parameters": {"sbdnums" : ["0344260365","0045680850","0320883834","0458942350","0230263345","0275905709","0343417804","0338951511","0304020761","0013473644","0084128092","0458928964","0286349880","0315034869","0133133401","0115112975","0272235075","0284368569","0300205828","0281727035","0281877319","0287628979","0143134052","0031795790","0121030945","0069986824","0313742616","0344553469","0357582242","0284425702","0281144959","0414257340","0185099092","0071836895","0275245897","0133656603","0133015413","0317854327","0279529681","0017511202","0127017958"]},
+    "resultDataContents": ["graph"]
+  }]
+}
