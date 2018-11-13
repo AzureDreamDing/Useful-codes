@@ -1,0 +1,46 @@
+GET
+_search?
+{
+    "query": {
+        "bool": {
+            "must":
+                {
+                    "nested": {
+                        "path": "parties",
+                        "query": {
+                            "bool": {
+                                "must": [
+                                    {
+                                        "exists":
+                                            {
+                                                "field": "parties.sbdnum"
+                                            }
+                                    }
+                                ]
+
+                            }
+                        }
+                    }
+                }
+        }
+
+    },
+    "aggs": {
+        "caseCategorys":
+            {
+                "nested": {
+                    "path": "caseCategory"
+                },
+                "aggs": {
+                    "count": {
+                        "terms": {
+                            "field": "caseCategory.name"
+                        }
+                    }
+                }
+            }
+
+    },
+    "size": 100
+
+}
