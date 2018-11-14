@@ -1,0 +1,17 @@
+def get_group_relations(group):
+    import pandas as pd
+    col = group.data[0].__fields__
+    df = pd.DataFrame(group.data, columns = col)
+    if len(df) < 2:
+        return None
+    df = df[['sbdnum','name','party_category_id']]
+    tmp = pd.DataFrame(list(itertools.combinations(df.values,2)))
+    df1 = pd.concat([tmp[0].apply(pd.Series), tmp[1].apply(pd.Series)], axis = 1)
+    df1.columns = ['sbdnum1','corpname1','category1','sbdnum2','corpname2','category2']
+    df1 = df1.apply(get_litigation_relations, axis = 1)
+    ret = list(df1.T.to_dict().values())
+    return ret
+    
+tmp = df.rdd.groupBy(lambda x: x['parsed_data_detail_id'])
+groupList = tmp.map(lambda x: get_group_relations(x[1])).filter(lambda x: x is not None).flatMap(lambda x: x)
+dfResult = groupList.map(convert_to_row).toDF().drop_duplicates()
