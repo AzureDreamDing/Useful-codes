@@ -1,0 +1,35 @@
+# -*- coding: UTF-8 -*-
+from pyspark import SparkConf
+from pyspark import SparkContext as sc
+from pyspark.sql import HiveContext
+from pyspark.sql.functions import *
+from pyspark.sql.types import *
+
+conf = SparkConf().setAppName("Neo4j_data_preparation")
+spark = sc.getOrCreate(conf)
+sqlContext = HiveContext(spark)
+
+spark.addPyFile('scala-logging-api_2.10-2.1.2.jar')
+spark.addPyFile('scala-logging-slf4j_2.10-2.1.2.jar')
+
+df0 = sqlContext.read.format("csv").option('header' , 'true').load(r'hdfs://nameservice1/user/c20732a/Resources/Litigation_relations')
+
+
+
+-------------------------------------------------
+
+Hue - Workflow
+files:
+-/user/c20732a/Code/Litigation_relations.py
+-/user/c18658a/py2env.zip
+-/user/c20732a/Code/commons-csv-1.5.jar
+-/user/c20732a/Code/spark-csv_2.10-1.5.0.jar
+-/user/c20732a/Code/scala-logging-api_2.10-2.1.2.jar
+-/user/c20732a/Code/scala-logging-slf4j_2.10-2.1.2.jar
+-/user/c20732a/Code/log4j.properties
+
+Options list:
+--files log4j.properties --archives py2env.zip --conf spark.yarn.appMasterEnv.PYSPARK_PYTHON=py2env.zip/py2env/bin/python 
+--conf spark.executorEnv.PYSPARK_PYTHON=py2env.zip/py2env/bin/python --driver-memory 20G 
+--executor-memory 15G --num-executors 12 --executor-cores 2 
+--conf spark.driver.extraJavaOptions='-Dlog4j.configuration=log4j.properties'
