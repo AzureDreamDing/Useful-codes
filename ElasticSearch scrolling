@@ -1,0 +1,10 @@
+GET _search?scroll=1m&size=30
+{query}
+
+then get _scroll_id
+
+POST /_search/scroll
+{
+  "scroll":"1m",
+  "scroll_id" : "DnF1ZXJ5VGhlbkZldGNoBQAAAAAAMhctFlRJMDZJaVpFU2RTWktyN1lWV1M5U0EAAAAAADIXLxZUSTA2SWlaRVNkU1pLcjdZVldTOVNBAAAAAAAyFzAWVEkwNklpWkVTZFNaS3I3WVZXUzlTQQAAAAAAMhcuFlRJMDZJaVpFU2RTWktyN1lWV1M5U0EAAAAAADIXMRZUSTA2SWlaRVNkU1pLcjdZVldTOVNB"
+}
