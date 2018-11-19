@@ -1,0 +1,28 @@
+CREATE EXTERNAL TABLE t_tax_deregulation
+(GuidRec string,
+doc_title string,
+doc_author string,
+doc_source string,
+doc_pubtime timestamp,
+doc_reference string,
+doc_content string,
+doc_referurl string,
+tm_Recv timestamp,
+abs string,
+doc_class_1 string,
+comment1 string,
+comment2 string,
+comment3 string,
+pk_id string,
+updatetime timestamp,
+is_resolved string,
+random string
+)
+ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.OpenCSVSerde'
+WITH SERDEPROPERTIES (
+"separatorChar" = ",",
+"quoteChar"     = "\""
+)  
+STORED AS TEXTFILE 
+location '/projects/warehouse/edf_chc/unencrypted/from_luyu/input/t_tax_deregulation'
+tblproperties ("skip.header.line.count"="1")
