@@ -1,0 +1,1 @@
+./neo4j-admin import --nodes: ../import/graph_nodes.csv --relationships: ../import/relation_control.csv --relationships: ../import/relation_represent.csv --multiline-fields=true --ignore-duplicate-nodes=true --ignore-missing-nodes=true
