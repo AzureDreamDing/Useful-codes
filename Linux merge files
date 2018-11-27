@@ -1,1 +1,0 @@
-gawk 'FNR==1 && NR!=1{next;}{print}' *.csv > /user/c20732a/Results/Relation_control.csv
