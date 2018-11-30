@@ -1,1 +1,31 @@
+--- Neo4j import data
 ./neo4j-admin import --nodes ../import/graph_nodes.csv --relationships ../import/relation_control.csv --relationships ../import/relation_represent.csv --multiline-fields=true --ignore-duplicate-nodes=true --ignore-missing-nodes=true
+
+--- Neo4j restful for querying multiply nodes with shortest paths
+
+Post: http://cnyzthdedf28.apac.experian.local:7474/db/data/transaction/commit
+
+header: 
+Content-Type: application/json
+Accept: application/json; charset=UTF-8
+
+body:
+{
+  "statements" : [ {
+    "statement" : "with {sbdnums} as id_list match (v) where v.id in id_list with collect(v) as nodes unwind nodes as source  unwind nodes as target with source,target where id(source)<id(target)  match paths = allshortestPaths((source) -[*0..4]-(target)) return collect(paths)",
+    "parameters": {"sbdnums" : ["0344260365","0045680850","0320883834","0458942350","0230263345","0275905709","0343417804","0338951511","0304020761","0013473644","0084128092","0458928964","0286349880","0315034869","0133133401","0115112975","0272235075","0284368569","0300205828","0281727035","0281877319","0287628979","0143134052","0031795790","0121030945","0069986824","0313742616","0344553469","0357582242","0284425702","0281144959","0414257340","0185099092","0071836895","0275245897","0133656603","0133015413","0317854327","0279529681","0017511202","0127017958"]},
+    "resultDataContents": ["graph"]
+  }]
+}
+
+
+--- Neo4j query for shortest paths
+
+with ['0360619181','0013558900','0045161402','0039916074','0304677188','0342842133','0003281674','0140375494',
+'0287476767','0080661146','0069986824','0281144959','0281460474','0279529681','0133015413','0317854327',
+'0344260365','0029103069','0373666159','0286337018','0135781964','0417129147','0120914225','0459055707',
+'0338951511','0414374941','0274763552','0271947101','0284676441','0286371417','0291633322','0120814262',
+'0342430097','0343608705','0133133401','0276583190','0327425567','0045185869','0316855890','0004871810',
+'0303315981','0020327978','0384295761','0024823700','0342145903','0272246027','0130297926','0185099092',
+'0129732413','0133656603'] 
+as id_list match (v:Corp) where v.id in id_list with collect(v) as nodes unwind nodes as source unwind nodes as target with source,target match paths = shortestpath((source:Corp)-[*0..4]-(target:Corp)) where source<>target return collect(paths)
