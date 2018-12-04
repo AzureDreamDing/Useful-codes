@@ -1,8 +1,11 @@
-Merge_files:
+--Merge_files:
   gawk 'FNR==1 && NR!=1{next;}{print}' *.csv > /user/c20732a/Results/Relation_control.csv
 
-drop_duplicates with order
+--drop_duplicates with order
   awk '!x[$0]++' 源文件 > 目标文件，这样可以去重保持顺序 
   
-drop_duplicates with disorder
+--drop_duplicates with disorder
   sort 文件|uniq > 新文件
+  
+--start pregram in background
+nohup ./neo4j start &
