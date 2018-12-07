@@ -9,3 +9,9 @@
   
 --start pregram in background
 nohup ./neo4j start &
+
+--get files from hdfs
+hdfs dfs -get hdfs://nameservice1/user/c20732a/Resources/project3.csv
+
+--gen ssh key
+ssh-keygen
