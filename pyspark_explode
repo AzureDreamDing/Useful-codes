@@ -1,0 +1,55 @@
+# -*- coding: UTF-8 -*-
+from pyspark import SparkConf
+from pyspark import SparkContext as sc
+# from pyspark.sql import SQLContext
+from pyspark.sql import HiveContext
+from pyspark.sql.functions import *
+from pyspark.sql.types import *
+
+print('task starting!!!')
+conf = SparkConf().setAppName("litigation_details_parsed")
+spark = sc.getOrCreate(conf)
+sqlContext = HiveContext(spark)
+
+def jsonsre_load(string):
+    import json
+
+    if len(string.replace(' ','')) == 0:
+        return []
+    else:
+        try:
+            return json.loads(string)
+        except:
+            print(string)
+            return []
+
+def combine_parties(accuser, appuser, party):
+    accuser_list = jsonsre_load(accuser)
+    appuser_list = jsonsre_load(appuser)
+    party_list = jsonsre_load(party)
+    return accuser_list + appuser_list + party_list
+
+udf_combine_parties = udf(combine_parties, ArrayType(MapType(keyType=StringType(), valueType=StringType())))
+
+load_path = '/projects/warehouse/edf_chc/encrypted/original/litigation_parsed_data_detail/'
+litigation_details = sqlContext.sql('select * from edf_chc_en.litigation_parsed_data_detail where length(trim(delete_time)) = 0')
+litigation_details = litigation_details.sort('ymd', ascending=False).drop_duplicates(subset=['id'])
+#
+save_path = '/projects/warehouse/edf_chc/unencrypted/processed/litigation/litigation_data_clear/details_clear.pq'
+litigation_details.write.parquet(path = save_path, mode= 'overwrite')
+
+# load_path = '../Resources/litigation_parsed_sample.csv'
+# df = sqlContext.read.format("csv").option('header', 'true').option("delimiter", "\t").option("escape", "\\").load(load_path)
+litigation_details = sqlContext.read.parquet(save_path)
+litigation_details = litigation_details.select(['id','accuser_str','appuser_str','party_str'])
+litigation_details = litigation_details.withColumn('parties_all', udf_combine_parties('accuser_str','appuser_str','party_str'))
+litigation_parties = litigation_details.withColumn('parties', explode(litigation_details.parties_all))
+litigation_parties = litigation_parties.select(litigation_parties.id.alias('details_id') ,explode(litigation_parties.parties)).groupBy('details_id').pivot('key').agg(first('value')).drop('details_id')
+print(litigation_parties.columns)
+litigation_parties = litigation_parties.select(['id','parsedDataDetailId','name','sbdnum','partyCategoryId','legalRepresentative','organizationCode','identificationNumber','dateOfBirth','address','organizationName','amountInvolved','isNaturePerson','amountToBeExecuted','updatedDate','insertDate'])
+# litigation_parties = litigation_parties.replace('null','')
+
+save_path = '/projects/warehouse/edf_chc/unencrypted/processed/litigation/litigation_data_clear/parties_clear.csv'
+# litigation_details.write.parquet(path = save_path, mode= 'overwrite')
+litigation_parties.write.format('com.databricks.spark.csv').option("header","true").option("nullValue","").save(path = save_path, mode= 'overwrite')
+
